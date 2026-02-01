@@ -58,15 +58,25 @@ Runtime dependencies (installed automatically):
 - `tokenizers` - Fast tokenization
 - `jinja2` - Chat template rendering
 
-## Key Conventions
+## Commit Convention
 
-- **Conventional commits**: All commits follow the conventional commit format
-  - `feat:` - New features
-  - `fix:` - Bug fixes
-  - `docs:` - Documentation changes
-  - `chore:` - Maintenance tasks
-  - `refactor:` - Code restructuring without behavior changes
-  - `test:` - Test additions or modifications
+Use [Conventional Commits](https://www.conventionalcommits.org/): `feat:`, `fix:`, `docs:`, `refactor:`, `chore:`, `test:`
+
+**Examples:**
+```
+feat: add support for custom chat templates
+fix: handle missing tokenizer_config.json gracefully
+docs: update README with gated model instructions
+refactor: extract template rendering to separate function
+chore: update dependencies
+test: add tests for message parsing
+```
+
+Use lowercase bullet points for multiple changes in commit body.
+
+Do not add Claude attribution unless Claude has helped write changes in the commit.
+
+## Key Conventions
 
 - **Entry point**: CLI is exposed via `pyproject.toml` scripts section
   - Command: `llmtokens`
