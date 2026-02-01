@@ -6,12 +6,14 @@ Count tokens and explore chat templates using HuggingFace tokenizers.
 
 Run directly without installation:
 ```bash
-uvx llmtokens
+uvx llmtokens --help
 ```
 
-Or install as a persistent tool:
+Or install as a persistent tool and run with just the tool name:
 ```bash
 uv tool install llmtokens
+
+llmtokens --help
 ```
 
 ## Quick Start
@@ -37,7 +39,7 @@ By default, `llmtokens` shows both raw token counts and templated counts (with t
 
 The tool prints token counts alongside standard text statistics (lines, words, characters, bytes). This makes it useful for comparing tokenizer efficiency across models and languages.
 
-### Comparing tokenizers across languages
+### Example: Comparing tokenizers across languages
 
 **English** (*Pride and Prejudice*, Jane Austen):
 ```bash
@@ -188,6 +190,55 @@ What is 2+2?
 
 The example shows the original input, the model's Jinja2 chat template, and the rendered text with special tokens and formatting applied.
 
+### Raw vs template mode
+
+Use `--mode` to control whether chat templates are applied:
+
+```bash
+# Raw mode: count tokens in the text as-is
+echo "What is 2+2?" | llmtokens --mode raw
+```
+
+Output:
+```
+============================================================
+                           STATS
+============================================================
+            model  mode  lines  words  chars  bytes  tokens
+-----------------------------------------------------------
+Qwen/Qwen2.5-0.5B   raw      1      3     13     13       7
+```
+
+```bash
+# Template mode: apply chat template and count tokens
+echo "What is 2+2?" | llmtokens --mode template
+```
+
+Output:
+```
+============================================================
+                           STATS
+============================================================
+            model      mode  lines  words  chars  bytes  tokens
+---------------------------------------------------------------
+Qwen/Qwen2.5-0.5B  template      6     12    121    121      26
+```
+
+The default mode is `both-auto`, which shows both raw and templated counts when a template is available.
+
+### JSON inputs
+
+You can provide structured conversation inputs as JSON arrays:
+
+```bash
+echo '[{"role": "system", "content": "You are a helpful assistant."}, {"role": "user", "content": "What is 2+2?"}]' | llmtokens --wrap-input no
+```
+
+Control input wrapping with `--wrap-input`:
+- `--wrap-input auto` (default): Try to parse as JSON; if that fails, wrap the text as a user message
+- `--wrap-input yes`: Always wrap the input as a single user message
+- `--wrap-input no`: Expect JSON array format; fail if input is not valid JSON
+
 ## Available Models
 
 The tool uses the HuggingFace library and can access any model on HuggingFace Hub. For models in HuggingFace format, it downloads only the tokenizer files (small, typically a few MB), not the full model weights. Downloaded tokenizers are cached by HuggingFace and reused across runs.
@@ -239,6 +290,3 @@ Some models (e.g., Llama) require HuggingFace authentication. Either set the `HF
 huggingface-cli login
 ```
 
-## License
-
-MIT
