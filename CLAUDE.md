@@ -11,7 +11,7 @@ llmtokens/
 ├── pyproject.toml         # Build configuration
 └── src/
     └── llmtokens/
-        ├── __init__.py    # Version string
+        ├── __init__.py    # Package marker
         └── cli.py         # Main CLI logic
 ```
 
@@ -82,7 +82,7 @@ Do not add Claude attribution unless Claude has helped write changes in the comm
   - Command: `llmtokens`
   - Target: `llmtokens.cli:main`
 
-- **Version**: Single source of truth in `src/llmtokens/__init__.py`
+- **Version**: Defined in `pyproject.toml` (modern PEP 621 approach)
 
 ## Publishing (future)
 
