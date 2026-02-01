@@ -1,6 +1,6 @@
 # llmtokens
 
-Count tokens and explore chat templates using HuggingFace tokenizers.
+Count tokens and explore chat templates using HuggingFace tokenizers or OpenAI tiktoken.
 
 ## Installation
 

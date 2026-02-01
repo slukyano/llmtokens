@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "llmtokens"
 version = "0.1.0"
-description = "Count tokens and explore chat templates using HuggingFace tokenizers"
+description = "Count tokens and explore chat templates using HuggingFace tokenizers or OpenAI tiktoken"
 authors = [
     {name = "Stanislav Lukyanov", email = "stanlukyanov@gmail.com"}
 ]
