@@ -29,6 +29,11 @@ classifiers = [
     "Topic :: Text Processing",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
 [project.urls]
 Homepage = "https://github.com/slukyano/llmtokens"
 Repository = "https://github.com/slukyano/llmtokens"
@@ -36,3 +41,9 @@ Issues = "https://github.com/slukyano/llmtokens/issues"
 
 [project.scripts]
 llmtokens = "llmtokens.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

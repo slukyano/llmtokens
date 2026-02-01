@@ -35,9 +35,11 @@ uv run llmtokens --help
 echo "hello world" | uv run llmtokens
 ```
 
-### Run tests (when added)
+### Run tests
 ```bash
-uv run pytest
+uv run --extra dev pytest
+# Or with verbose output
+uv run --extra dev pytest -v
 ```
 
 ### Build package
@@ -57,6 +59,10 @@ Runtime dependencies (installed automatically):
 - `huggingface_hub` - Download tokenizers from HuggingFace Hub
 - `tokenizers` - Fast tokenization
 - `jinja2` - Chat template rendering
+- `tiktoken` - OpenAI tokenizers
+
+Development dependencies (optional):
+- `pytest` - Testing framework
 
 ## Commit Convention
 
@@ -75,6 +81,28 @@ test: add tests for message parsing
 Use lowercase bullet points for multiple changes in commit body.
 
 Do not add Claude attribution unless Claude has helped write changes in the commit.
+
+## Testing
+
+The project includes basic smoke tests using pytest:
+
+**Test categories:**
+- Tokenizer loading (tiktoken and HuggingFace)
+- Token counting
+- Message parsing (JSON vs auto-wrap)
+- Chat template rendering
+- CLI end-to-end tests
+
+**Running tests:**
+```bash
+uv run --extra dev pytest -v
+```
+
+**Test approach:**
+- Import and call functions directly (not subprocess)
+- Use pytest fixtures (monkeypatch, capsys)
+- Real tokenizers (cached by HF/tiktoken, fast enough)
+- No mocking for basic tests
 
 ## Key Conventions
 
