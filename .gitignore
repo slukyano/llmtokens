@@ -13,3 +13,6 @@ dist/
 
 # uv
 uv.lock
+
+# Env
+.env
