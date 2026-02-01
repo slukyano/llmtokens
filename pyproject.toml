@@ -16,6 +16,7 @@ dependencies = [
     "huggingface_hub",
     "tokenizers",
     "jinja2",
+    "tiktoken",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",

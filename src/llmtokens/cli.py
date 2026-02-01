@@ -12,6 +12,7 @@ os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 from huggingface_hub import hf_hub_download
 from jinja2 import Template
 from tokenizers import Tokenizer
+import tiktoken
 
 # Global verbose flag
 verbose = False
@@ -19,11 +20,43 @@ verbose = False
 DEFAULT_MODEL = "Qwen/Qwen2.5-0.5B"
 
 
-def load_tokenizer(model: str) -> tuple[Tokenizer | None, str | None]:
-    """Load tokenizer from HuggingFace Hub. Returns (tokenizer, error)."""
+class TokenizerWrapper:
+    """Wrapper to provide consistent interface for both tiktoken and HF tokenizers."""
+
+    def __init__(self, tokenizer, is_tiktoken: bool):
+        self.tokenizer = tokenizer
+        self.is_tiktoken = is_tiktoken
+
+    def encode(self, text: str):
+        if self.is_tiktoken:
+            # tiktoken returns list[int] directly
+            return TiktokenEncoding(self.tokenizer.encode(text))
+        else:
+            # HF tokenizer returns Encoding object with .ids
+            return self.tokenizer.encode(text)
+
+
+class TiktokenEncoding:
+    """Wrapper for tiktoken encoding results to match HF interface."""
+
+    def __init__(self, ids: list[int]):
+        self.ids = ids
+
+
+def load_tokenizer(model: str) -> tuple[TokenizerWrapper | None, str | None]:
+    """Load tokenizer (try tiktoken first, then HuggingFace). Returns (tokenizer, error)."""
+    # Try tiktoken first
+    try:
+        enc = tiktoken.get_encoding(model)
+        return TokenizerWrapper(enc, is_tiktoken=True), None
+    except Exception:
+        pass  # Not a tiktoken encoding, try HuggingFace
+
+    # Try HuggingFace
     try:
         path = hf_hub_download(model, "tokenizer.json")
-        return Tokenizer.from_file(path), None
+        tokenizer = Tokenizer.from_file(path)
+        return TokenizerWrapper(tokenizer, is_tiktoken=False), None
     except Exception as e:
         error_msg = f"Failed to load tokenizer: {e}"
         if verbose:
@@ -82,7 +115,7 @@ def parse_messages(text: str, wrap_input: str) -> tuple[list[dict] | None, bool,
         return [{"role": "user", "content": text}], True, None
 
 
-def count_tokens(text: str, tokenizer: Tokenizer) -> int:
+def count_tokens(text: str, tokenizer: TokenizerWrapper) -> int:
     return len(tokenizer.encode(text).ids)
 
 
@@ -96,7 +129,7 @@ def main():
         action="append",
         dest="models",
         metavar="MODEL",
-        help=f"HuggingFace model name (repeatable, default: {DEFAULT_MODEL})",
+        help=f"Tokenizer name: tiktoken encoding (e.g., cl100k_base, o200k_base) or HuggingFace model (repeatable, default: {DEFAULT_MODEL})",
     )
     parser.add_argument(
         "--mode",
@@ -153,7 +186,7 @@ def main():
     results = []  # (model, mode, lines, words, chars, bytes, tokens)
     model_data = []  # (model, template, rendered)
 
-    def calc_stats(t: str, tokenizer: Tokenizer) -> tuple:
+    def calc_stats(t: str, tokenizer: TokenizerWrapper) -> tuple:
         return (t.count("\n"), len(t.split()), len(t), len(t.encode("utf-8")), count_tokens(t, tokenizer))
 
     models.sort()
